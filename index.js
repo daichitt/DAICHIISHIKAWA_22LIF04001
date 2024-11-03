@@ -1,9 +1,19 @@
-const express = require('express'); 
+const express = require('express');
+const cookieParser = require('cookie-parser');
+const path = require('path');
 const app = express();
-const PORT = process.env.PORT || 8000; // 8000 is the default port if PORT is not set
+const PORT = 8000;
+// Middleware
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+app.set('view engine', 'ejs'); // Set EJS as the template engine
+app.set('views', path.join(__dirname, 'views')); // Set views directory
 
-app.use(express.json());
+// Routes
+app.get('/', (req, res) => {
+  res.render('signin'); // Render sign-in page
+});
 
 app.listen(PORT, () => {
-  console.log(`App is listening to port: ${PORT}`);
+    console.log(`Server is running on http://localhost:${PORT}`);
 });
