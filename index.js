@@ -37,7 +37,7 @@ app.use((req, res, next) => {
           return next();
       }
       
-      req.currentUser = results[0]; // Attach the user info to req
+      req.currentUser = results[0]; 
       next();
   });
 });
@@ -45,65 +45,73 @@ app.use((req, res, next) => {
 // Home / Sign-in page
 app.get('/', (req, res) => {
     if (req.cookies.userId) {
-        return res.redirect('/inbox'); // 既にサインインしている場合は受信トレイにリダイレクト
+        return res.redirect('/inbox'); 
     }
-    res.render('index'); // サインインページを表示
+    res.render('index', { error: null });
 });
 
-// サインイン処理
+
+app.get('/signin', (req, res) => {
+    if (req.cookies.userId) {
+        return res.redirect('/inbox');
+    }
+    res.render('index', { error: null });
+});
+
+
 app.post('/signin', (req, res) => {
-    console.log(req.body);
     const { email, password } = req.body;
     const query = 'SELECT * FROM users WHERE email = ? AND password = ?';
     
     connection.query(query, [email, password], (err, results) => {
-        if (err) throw err;
+        if (err) {
+            console.error('Database error:', err);
+            return res.render('index', { error: 'An error occurred' });
+        }
         if (results.length > 0) {
-            res.cookie('userId', results[0].id); // クッキーにユーザーIDを保存
-            return res.redirect('/inbox'); // 受信トレイにリダイレクト
+            res.cookie('userId', results[0].id);
+            return res.redirect('/inbox');
         } else {
-            res.render('index', { error: 'Invalid credentials' }); // エラーメッセージを表示
+            res.render('index', { error: 'User not exist' });
         }
     });
 });
 
-// サインアップページ表示
 app.get('/signup', (req, res) => {
-    res.render('signup'); // サインアップページを表示
+    res.render('signup', { error: null, success: null });
 });
 
-// サインアップ処理
 app.post('/signup', (req, res) => {
     const { full_name, email, password } = req.body;
 
-    // 簡単なバリデーション
     if (!full_name || !email || !password) {
-        return res.render('signup', { error: 'All fields are required' });
+        return res.render('signup', { error: 'All fields are required', success: null });
     }
-    
+
     const checkEmailQuery = 'SELECT * FROM users WHERE email = ?';
-    
     connection.query(checkEmailQuery, [email], (err, results) => {
-        if (err) throw err;
+        if (err) {
+            return res.render('signup', { error: 'An error occurred. Please try again.', success: null });
+        }
         if (results.length > 0) {
-            return res.render('signup', { error: 'Email already in use' });
+            return res.render('signup', { error: 'Email already in use', success: null });
         }
 
         const insertUserQuery = 'INSERT INTO users (full_name, email, password) VALUES (?, ?, ?)';
-        
         connection.query(insertUserQuery, [full_name, email, password], (err) => {
-            if (err) throw err;
-            res.redirect('/'); // サインインページにリダイレクト
+            if (err) {
+                return res.render('signup', { error: 'An error occurred. Please try again.', success: null });
+            }
+            res.render('signup', { error: null, success: 'Signup successful! You can now log in.' });
         });
     });
 });
 
-// 受信トレイページ - 認証チェックが必要
 app.get('/inbox', async (req, res) => {
-    const userId = req.cookies.userId; // クッキーからユーザーIDを取得
+    const userId = req.cookies.userId; 
 
     if (!userId) {
-        return res.status(403).send('Access denied'); // アクセス拒否
+        return res.status(403).send('Access denied'); 
     }
 
     const page = parseInt(req.query.page) || 1;
@@ -111,18 +119,18 @@ app.get('/inbox', async (req, res) => {
     const offset = (page - 1) * limit;
 
     try {
-        const emails = await getInboxEmails(userId, offset, limit); // Fetch emails with pagination
-        const totalEmails = await getInboxEmailCount(userId); // Get the total number of emails
+        const emails = await getInboxEmails(userId, offset, limit);
+        const totalEmails = await getInboxEmailCount(userId);
         const totalPages = Math.ceil(totalEmails / limit);
 
-        // ユーザー情報を取得するクエリ
+       
         const userQuery = 'SELECT full_name FROM users WHERE id = ?';
         
         connection.query(userQuery, [userId], (err, userResults) => {
             if (err) throw err;
-            const user = userResults[0]; // ユーザー情報を取得
+            const user = userResults[0]; 
 
-            // ユーザー情報をビューに渡す
+            
             res.render('inbox', { emails, page, totalPages, user }); 
         });
     } catch (error) {
@@ -163,34 +171,34 @@ function getInboxEmailCount(userId) {
     });
 }
 
-// メール作成ページ
+
 app.get('/compose', (req, res) => {
-    const userId = req.cookies.userId; // クッキーからユーザーIDを取得
+    const userId = req.cookies.userId;
 
     if (!userId) {
-        return res.status(403).send('Access denied'); // アクセス拒否
+        return res.status(403).send('Access denied'); 
     }
 
-    const query = 'SELECT * FROM users WHERE id != ?'; // 自分以外のユーザーを取得
+    const query = 'SELECT * FROM users WHERE id != ?';
     
     connection.query(query, [userId], (err, users) => {
         if (err) throw err;
-        res.render('compose', { users, error: null, user: req.currentUser }); // 受信者リストを表示し、エラーはnull
+        res.render('compose', { users, error: null, user: req.currentUser });
     });
 });
 
-// メール送信処理
+
 app.post('/send-email', (req, res) => {
-    const userId = req.cookies.userId; // クッキーからユーザーIDを取得
+    const userId = req.cookies.userId; 
 
     if (!userId) {
-        return res.status(403).send('Access denied'); // アクセス拒否
+        return res.status(403).send('Access denied'); 
     }
 
     const { recipient_id, subject, body } = req.body;
 
     if (!recipient_id) {
-        return res.status(400).send('Recipient is required'); // エラーメッセージ
+        return res.status(400).send('Recipient is required');
     }
 
     const insertEmailQuery = `
@@ -199,16 +207,16 @@ app.post('/send-email', (req, res) => {
     
     connection.query(insertEmailQuery, [userId, recipient_id, subject || null, body || null], (err) => {
         if (err) throw err;
-        res.redirect('/inbox'); // 受信トレイにリダイレクト
+        res.redirect('/inbox');
     });
 });
 
-// 送信済みメールページ
+// 
 app.get('/outbox', async (req, res) => {
-    const userId = req.cookies.userId; // クッキーからユーザーIDを取得
+    const userId = req.cookies.userId;
 
     if (!userId) {
-        return res.status(403).send('Access denied'); // アクセス拒否
+        return res.status(403).send('Access denied');
     }
 
     const page = parseInt(req.query.page) || 1;
@@ -216,8 +224,8 @@ app.get('/outbox', async (req, res) => {
     const offset = (page - 1) * limit;
 
     try {
-        const emails = await getEmails(userId, offset, limit); // Fetch emails with pagination
-        const totalEmails = await getEmailCount(userId); // Get the total number of emails
+        const emails = await getEmails(userId, offset, limit);
+        const totalEmails = await getEmailCount(userId);
         const totalPages = Math.ceil(totalEmails / limit);
 
         res.render('outbox', { emails, page, totalPages, user: req.currentUser });
@@ -226,7 +234,7 @@ app.get('/outbox', async (req, res) => {
     }
 });
 
-// メール詳細ページ
+
 app.get('/emails/:id', (req, res) => {
     const emailId = req.params.id;
 
@@ -241,14 +249,14 @@ app.get('/emails/:id', (req, res) => {
         
         const emailDetails = results[0];
         
-        res.render('detail', { email: emailDetails }); // メール詳細を表示
+        res.render('detail', { email: emailDetails, user: req.currentUser });
     });
 });
 
-// サインアウト処理
+
 app.get('/logout', (req, res) => {
-   res.clearCookie('userId'); // クッキーを削除してサインアウト
-   res.redirect('/'); // サインインページにリダイレクト
+   res.clearCookie('userId');
+   res.redirect('/'); 
 });
 
 // Start server
