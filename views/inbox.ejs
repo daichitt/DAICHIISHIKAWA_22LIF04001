@@ -1,0 +1,17 @@
+<%- include('layout') %>
+
+<h2>Inbox</h2>
+
+<table>
+   <% emails.forEach(email => { %>
+       <tr>
+           <td><%= email.sender_name %></td> <!-- 送信者名 -->
+           <td><a href="/emails/<%= email.id %>"><%= email.subject || '(no subject)' %></a></td> <!-- 件名 -->
+           <td><%= new Date(email.timestamp).toLocaleString() %></td> <!-- 受信時間 -->
+       </tr>
+   <% }) %>
+</table>
+
+
+
+<p><a href="/compose">Compose New Email</a></p>

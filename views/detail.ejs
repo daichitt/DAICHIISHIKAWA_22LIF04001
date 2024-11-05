@@ -1,0 +1,26 @@
+<%- include('layout') %>
+
+<h2>Email Detail</h2>
+
+<p><strong>Subject:</strong> <%= email.subject || '(no subject)' %></p><!-- 件名 -->
+
+<p><strong>From:</strong> <%= email.sender_name || 'Unknown' %></p><!-- 送信者名 -->
+
+<p><strong>Date:</strong> <%= new Date(email.timestamp).toLocaleString() || 'Unknown' %></p><!-- 日付 -->
+
+<p><strong>Body:</strong></p><!-- 本文 -->
+<pre><%= email.body || '(no content)'%></pre><!-- 本文内容 -->
+
+<!-- 添付ファイルがある場合は表示 -->
+<% if (email.attachment) { %><!-- 添付ファイルがある場合-->
+    <p><strong>Attachment:</strong> 
+        <a href="<%= email.attachment_url || '#'%>" download="<%= email.attachment_name || 'file' + email.id%>" >Download File</a><!-- ダウンロードリンク-->
+    </p><!-- 添付ファイル情報表示-->
+<% } else { 
+      // 添付ファイルがない場合 
+      // 特に何もしない 
+} 
+%>
+
+
+<p><a href="/inbox">Back to Inbox</a></p><!-- 戻るリンク-->

@@ -1,0 +1,21 @@
+<%- include('layout') %>
+
+<h2>Sign Up</h2>
+<form action="/signup" method="POST">
+    <label for="full_name">Full Name:</label>
+    <input type="text" name="full_name" required>
+
+    <label for="email">Email:</label>
+    <input type="email" name="email" required>
+
+    <label for="password">Password:</label>
+    <input type="password" name="password" required>
+
+    <button type="submit">Create Account</button>
+
+    <% if (error) { %>
+        <p style="color: red;"><%= error %></p> <!-- エラーメッセージ -->
+    <% } %>
+</form>
+
+<p>Already have an account? <a href="/">Sign in here</a>.</p>

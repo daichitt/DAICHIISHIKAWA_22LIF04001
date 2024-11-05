@@ -1,0 +1,27 @@
+<%- include('layout') %>
+
+<h2>Compose Email</h2>
+<form action="/send-email" method="POST">
+   <label for="recipient_id">Recipient:</label>
+   <select name="recipient_id">
+       <% users.forEach(user => { %>
+           <option value="<%= user.id %>"><%= user.full_name %></option> <!-- 受信者リスト -->
+       <% }) %>
+   </select>
+
+   <label for="subject">Subject:</label>
+   <input type="text" name="subject">
+
+   <label for="body">Body:</label>
+   <textarea name="body"></textarea>
+
+   <button type="submit">Send Email</button>
+
+   <% if (error) { %>
+       <p style="color: red;"><%= error %></p> <!-- エラーメッセージ -->
+   <% } else if (success) { %>
+       <p style="color: green;">Email sent successfully!</p> <!-- 成功メッセージ -->
+   <% } %>
+</form>
+
+<p><a href="/inbox">Back to Inbox</a></p>
