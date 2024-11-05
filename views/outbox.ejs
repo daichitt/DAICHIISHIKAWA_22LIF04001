@@ -3,6 +3,13 @@
 <h2>Outbox</h2>
 
 <table>
+  <thead>
+    <tr>
+    <th>Recipient Name</th>
+    <th>Subject</th>
+    <th>Time Received</th>
+    </tr>
+  </thead>
    <% emails.forEach(email => { %>
        <tr>
            <td><%= email.recipient_name %></td> <!-- 受取人名 -->

@@ -3,14 +3,23 @@
 <h2>Inbox</h2>
 
 <table>
-   <% emails.forEach(email => { %>
-       <tr>
-           <td><%= email.sender_name %></td> <!-- 送信者名 -->
-           <td><a href="/emails/<%= email.id %>"><%= email.subject || '(no subject)' %></a></td> <!-- 件名 -->
-           <td><%= new Date(email.timestamp).toLocaleString() %></td> <!-- 受信時間 -->
-       </tr>
-   <% }) %>
-</table>
+    <thead>
+        <tr>
+        <th>Sender</th>
+        <th>Subject</th>
+        <th>Time Received</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% emails.forEach(email => { %>
+        <tr>
+        <td><%= email.sender_name %></td>
+        <td><a href="/emails/<%= email.id %>"><%= email.subject || '(no subject)' %></a></td> <!-- Email subject -->
+        <td><%= new Date(email.timestamp).toLocaleString() %></td> 
+        </tr>
+        <% }) %>
+    </tbody>
+   </table>
 
 
 

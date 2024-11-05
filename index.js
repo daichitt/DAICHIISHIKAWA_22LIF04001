@@ -20,7 +20,27 @@ const dbConfig = {
 };
 const connection = mysql.createConnection(dbConfig);
 
-// Routes
+// Middleware to get current user
+app.use((req, res, next) => {
+  const userId = req.cookies.userId;
+
+  if (!userId) {
+      req.currentUser = null;
+      return next();
+  }
+
+  const userQuery = 'SELECT * FROM users WHERE id = ?';
+  connection.query(userQuery, [userId], (err, results) => {
+      if (err) {
+          console.error('Error fetching user:', err);
+          req.currentUser = null;
+          return next();
+      }
+      
+      req.currentUser = results[0]; // Attach the user info to req
+      next();
+  });
+});
 
 // Home / Sign-in page
 app.get('/', (req, res) => {
@@ -32,10 +52,11 @@ app.get('/', (req, res) => {
 
 // サインイン処理
 app.post('/signin', (req, res) => {
-    const { username, password } = req.body;
+    console.log(req.body);
+    const { email, password } = req.body;
     const query = 'SELECT * FROM users WHERE email = ? AND password = ?';
     
-    connection.query(query, [username, password], (err, results) => {
+    connection.query(query, [email, password], (err, results) => {
         if (err) throw err;
         if (results.length > 0) {
             res.cookie('userId', results[0].id); // クッキーにユーザーIDを保存
@@ -120,7 +141,7 @@ app.get('/compose', (req, res) => {
     
     connection.query(query, [userId], (err, users) => {
         if (err) throw err;
-        res.render('compose', { users, error: null }); // 受信者リストを表示し、エラーはnull
+        res.render('compose', { users, error: null, user: req.currentUser }); // 受信者リストを表示し、エラーはnull
     });
 });
 
@@ -165,7 +186,7 @@ app.get('/outbox', (req, res) => {
     
     connection.query(query, [userId], (err, results) => {
         if (err) throw err;
-        res.render('outbox', { emails: results }); // 送信済みメールを表示
+        res.render('outbox', { emails: results , user: req.currentUser}); // 送信済みメールを表示
     });
 });
 
