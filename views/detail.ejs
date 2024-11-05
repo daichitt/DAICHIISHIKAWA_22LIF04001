@@ -1,23 +1,46 @@
 <%- include('layout') %>
 
-<h2>Email Detail</h2>
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">Email Detail</h5>
+        <p class="card-text"><strong>Subject:</strong> <%= email.subject || '(no subject)' %></p>
+        <p class="card-text"><strong>From:</strong> <%= email.sender_name || 'Unknown' %></p>
+        <p class="card-text"><strong>Date:</strong> <%= new Date(email.timestamp).toLocaleString() || 'Unknown' %></p>
+        <p class="card-text"><strong>Body:</strong></p>
+        <pre class="card-text"><%= email.body || '(no content)' %></pre>
+        <% if (email.attachment) { %>
+            <p class="card-text"><strong>Attachment:</strong> 
+                <a href="<%= email.attachment_url || '#' %>" download="<%= email.attachment_name || 'file' + email.id %>">Download File</a>
+            </p>
+        <% } %>
+    </div>
+</div>
 
-<p><strong>Subject:</strong> <%= email.subject || '(no subject)' %></p><!-- 件名 -->
+<style>
 
-<p><strong>From:</strong> <%= email.sender_name || 'Unknown' %></p><!-- 送信者名 -->
+    .card {
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 20px;
+        margin: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        background-color: white;
+        border-radius: 5px;
+        }
 
-<p><strong>Date:</strong> <%= new Date(email.timestamp).toLocaleString() || 'Unknown' %></p><!-- 日付 -->
+    .card-title {
+        font-size: 1.5em;
+        margin-bottom: 10px;
+    }
 
-<p><strong>Body:</strong></p><!-- 本文 -->
-<pre><%= email.body || '(no content)'%></pre><!-- 本文内容 -->
+    .card-text {
+        margin-bottom: 10px;
+    }
 
-<!-- 添付ファイルがある場合は表示 -->
-<% if (email.attachment) { %><!-- 添付ファイルがある場合-->
-    <p><strong>Attachment:</strong> 
-        <a href="<%= email.attachment_url || '#'%>" download="<%= email.attachment_name || 'file' + email.id%>" >Download File</a><!-- ダウンロードリンク-->
-    </p><!-- 添付ファイル情報表示-->
-<% } else { 
-      // 添付ファイルがない場合 
-      // 特に何もしない 
-} 
-%>
+    .card pre {
+        background-color: #f8f8f8;
+        padding: 10px;
+        border-radius: 5px;
+        overflow-x: auto;
+    }
+</style>
