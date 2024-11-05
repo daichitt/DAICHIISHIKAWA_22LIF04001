@@ -12,7 +12,16 @@
     <input type="password" name="password" required>
 
     <button type="submit">Create Account</button>
+
+    <% if (error) { %>
+        <p style="color: red; font-weight: bold;">Error: <%= error %></p>
+    <% } %>
+    
+    <% if (success) { %>
+        <p style="color: green; font-weight: bold;">Success: <%= success %></p>
+    <% } %>
 <p>Already have an account? <a href="/">Sign in here</a>.</p>
+
 
 
 </form>
