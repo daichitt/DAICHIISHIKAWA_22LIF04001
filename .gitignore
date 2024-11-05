@@ -1,0 +1,12 @@
+# Default ignored files
+shelf/
+workspace.xml
+# Editor-based HTTP Client requests
+/httpRequests/
+vcs.xml
+modules.xml
+DAICHIISHIKAWA_22LIF04001.iml
+/node_moduls/
+node_modules
+node_modules/
+node_modules/*
