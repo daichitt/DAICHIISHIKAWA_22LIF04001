@@ -16,6 +16,7 @@
            color: white;
            padding: 10px 0;
            text-align: center;
+           margin-bottom: 0; /* Ensure no margin below the header */
        }
        
        nav ul {
@@ -23,6 +24,7 @@
            padding: 0;
            text-align: center;
            background-color: #333;
+           margin: 0; /* Remove default margin */
        }
        nav ul li {
            display: inline;
@@ -55,11 +57,8 @@
            background-color: #f2f2f2;
        }
 
-       main {
+      main {
            padding: 20px;
-           /* max-width: 600px;
-           margin: auto; */
-
            max-width: 800px; /* Set a max width for the main content */
            margin: auto; /* Center the main content */
        }
@@ -81,6 +80,8 @@
            margin-top: 10px;
        }
       input[type="text"],
+      input[type="email"],
+      input[type="password"],
       textarea,
       select {
            width: calc(100% - 22px);
@@ -106,12 +107,12 @@
 <body>
 <header>
    <h1>Web-based Email System</h1>
-   <% if (typeof user !== 'undefined') { %> <!-- userが定義されているか確認 -->
+   <% if (typeof user !== 'undefined') { %>
        <p>Welcome, <%= user.full_name %>!</p>
        <a href="/logout" style="color:white;">Sign Out</a>
    <% } %>
 </header>
-<% if (typeof user !== 'undefined') { %> <!-- userが定義されているか確認 -->
+<% if (typeof user !== 'undefined') { %>
 <nav>
    <ul>
        <li><a href="/compose">Compose</a></li>

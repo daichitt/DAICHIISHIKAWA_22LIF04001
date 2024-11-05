@@ -99,22 +99,21 @@ app.post('/signup', (req, res) => {
 });
 
 // 受信トレイページ - 認証チェックが必要
-app.get('/inbox', (req, res) => {
+app.get('/inbox', async (req, res) => {
     const userId = req.cookies.userId; // クッキーからユーザーIDを取得
 
     if (!userId) {
         return res.status(403).send('Access denied'); // アクセス拒否
     }
 
-    const query = `
-        SELECT emails.*, users.full_name AS sender_name 
-        FROM emails 
-        JOIN users ON emails.sender_id = users.id 
-        WHERE recipient_id = ?
-        ORDER BY timestamp DESC`;
-    
-    connection.query(query, [userId], (err, results) => {
-        if (err) throw err;
+    const page = parseInt(req.query.page) || 1;
+    const limit = 5;
+    const offset = (page - 1) * limit;
+
+    try {
+        const emails = await getInboxEmails(userId, offset, limit); // Fetch emails with pagination
+        const totalEmails = await getInboxEmailCount(userId); // Get the total number of emails
+        const totalPages = Math.ceil(totalEmails / limit);
 
         // ユーザー情報を取得するクエリ
         const userQuery = 'SELECT full_name FROM users WHERE id = ?';
@@ -124,10 +123,45 @@ app.get('/inbox', (req, res) => {
             const user = userResults[0]; // ユーザー情報を取得
 
             // ユーザー情報をビューに渡す
-            res.render('inbox', { emails: results, user }); 
+            res.render('inbox', { emails, page, totalPages, user }); 
+        });
+    } catch (error) {
+        res.status(500).send('Error loading inbox');
+    }
+});
+
+// Helper function to get emails with pagination
+function getInboxEmails(userId, offset, limit) {
+    return new Promise((resolve, reject) => {
+        const query = `
+            SELECT emails.*, users.full_name AS sender_name 
+            FROM emails 
+            JOIN users ON emails.sender_id = users.id 
+            WHERE recipient_id = ?
+            ORDER BY timestamp DESC
+            LIMIT ? OFFSET ?`;
+        
+        connection.query(query, [userId, limit, offset], (err, results) => {
+            if (err) return reject(err);
+            resolve(results);
         });
     });
-});
+}
+
+// Helper function to get the total email count
+function getInboxEmailCount(userId) {
+    return new Promise((resolve, reject) => {
+        const query = `
+            SELECT COUNT(*) AS count 
+            FROM emails 
+            WHERE recipient_id = ?`;
+        
+        connection.query(query, [userId], (err, results) => {
+            if (err) return reject(err);
+            resolve(results[0].count);
+        });
+    });
+}
 
 // メール作成ページ
 app.get('/compose', (req, res) => {
@@ -170,24 +204,26 @@ app.post('/send-email', (req, res) => {
 });
 
 // 送信済みメールページ
-app.get('/outbox', (req, res) => {
+app.get('/outbox', async (req, res) => {
     const userId = req.cookies.userId; // クッキーからユーザーIDを取得
 
     if (!userId) {
         return res.status(403).send('Access denied'); // アクセス拒否
     }
 
-    const query = `
-        SELECT emails.*, users.full_name AS recipient_name 
-        FROM emails 
-        JOIN users ON emails.recipient_id = users.id 
-        WHERE sender_id = ?
-        ORDER BY timestamp DESC`;
-    
-    connection.query(query, [userId], (err, results) => {
-        if (err) throw err;
-        res.render('outbox', { emails: results , user: req.currentUser}); // 送信済みメールを表示
-    });
+    const page = parseInt(req.query.page) || 1;
+    const limit = 5;
+    const offset = (page - 1) * limit;
+
+    try {
+        const emails = await getEmails(userId, offset, limit); // Fetch emails with pagination
+        const totalEmails = await getEmailCount(userId); // Get the total number of emails
+        const totalPages = Math.ceil(totalEmails / limit);
+
+        res.render('outbox', { emails, page, totalPages, user: req.currentUser });
+    } catch (error) {
+        res.status(500).send('Error loading outbox');
+    }
 });
 
 // メール詳細ページ
@@ -219,3 +255,35 @@ app.get('/logout', (req, res) => {
 app.listen(PORT, () => {
    console.log(`Server is running on http://localhost:${PORT}`);
 });
+// Helper function to get emails with pagination
+function getEmails(userId, offset, limit) {
+    return new Promise((resolve, reject) => {
+        const query = `
+            SELECT emails.*, users.full_name AS recipient_name 
+            FROM emails 
+            JOIN users ON emails.recipient_id = users.id 
+            WHERE sender_id = ?
+            ORDER BY timestamp DESC
+            LIMIT ? OFFSET ?`;
+        
+        connection.query(query, [userId, limit, offset], (err, results) => {
+            if (err) return reject(err);
+            resolve(results);
+        });
+    });
+}
+
+// Helper function to get the total email count
+function getEmailCount(userId) {
+    return new Promise((resolve, reject) => {
+        const query = `
+            SELECT COUNT(*) AS count 
+            FROM emails 
+            WHERE sender_id = ?`;
+        
+        connection.query(query, [userId], (err, results) => {
+            if (err) return reject(err);
+            resolve(results[0].count);
+        });
+    });
+}

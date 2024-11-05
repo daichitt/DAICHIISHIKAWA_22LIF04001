@@ -1,7 +1,7 @@
 <%- include('layout') %>
 
-<h2>Sign Up</h2>
 <form action="/signup" method="POST">
+    <h2>Sign Up</h2>
     <label for="full_name">Full Name:</label>
     <input type="text" name="full_name" required>
 
@@ -12,7 +12,7 @@
     <input type="password" name="password" required>
 
     <button type="submit">Create Account</button>
+<p>Already have an account? <a href="/">Sign in here</a>.</p>
+
 
 </form>
-
-<p>Already have an account? <a href="/">Sign in here</a>.</p>
