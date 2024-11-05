@@ -120,7 +120,7 @@ app.get('/compose', (req, res) => {
     
     connection.query(query, [userId], (err, users) => {
         if (err) throw err;
-        res.render('compose', { users }); // 受信者リストを表示
+        res.render('compose', { users, error: null }); // 受信者リストを表示し、エラーはnull
     });
 });
 
