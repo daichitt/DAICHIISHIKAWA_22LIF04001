@@ -1,7 +1,7 @@
 <%- include('layout') %>
 
-<h2>Compose Email</h2>
 <form action="/send-email" method="POST">
+<h2>Compose Email</h2>
    <label for="recipient_id">Recipient:</label>
    <select name="recipient_id">
        <% users.forEach(user => { %>
@@ -18,5 +18,3 @@
    <button type="submit">Send Email</button>
 
 </form>
-
-<p><a href="/inbox">Back to Inbox</a></p>

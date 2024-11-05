@@ -1,6 +1,7 @@
 <%- include('layout') %>
 
-<h2>Inbox</h2>
+<div class="container" >
+    <h2>Inbox</h2>
 
 <table>
     <thead>
@@ -14,13 +15,12 @@
         <% emails.forEach(email => { %>
         <tr>
         <td><%= email.sender_name %></td>
-        <td><a href="/emails/<%= email.id %>"><%= email.subject || '(no subject)' %></a></td> <!-- Email subject -->
+        <td><a href="/emails/<%= email.id %>"><%= email.subject || '(no subject)' %></a></td>
         <td><%= new Date(email.timestamp).toLocaleString() %></td> 
         </tr>
         <% }) %>
     </tbody>
-   </table>
+</table>
 
+</div>
 
-
-<p><a href="/compose">Compose New Email</a></p>
