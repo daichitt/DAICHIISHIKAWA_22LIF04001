@@ -82,10 +82,18 @@ app.get('/signup', (req, res) => {
 });
 
 app.post('/signup', (req, res) => {
-    const { full_name, email, password } = req.body;
+    const { full_name, email, password, confirm_password} = req.body;
 
-    if (!full_name || !email || !password) {
+    if (!full_name || !email || !password ) {
         return res.render('signup', { error: 'All fields are required', success: null });
+    }
+
+    if (password.length < 6) {
+        return res.render('signup', { error: 'Password must be at least 6 characters' , success: null});
+    }
+
+    if (password !== confirm_password) {
+        return res.render('signup', { error: 'Passwords do not match', success: null });
     }
 
     const checkEmailQuery = 'SELECT * FROM users WHERE email = ?';
