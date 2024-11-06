@@ -5,7 +5,7 @@
    <label for="recipient_id">Recipient:</label>
    <select name="recipient_id">
        <% users.forEach(user => { %>
-           <option value="<%= user.id %>"><%= user.full_name %></option> <!-- 受信者リスト -->
+           <option value="<%= user.id %>"><%= user.full_name %></option>
        <% }) %>
    </select>
 
