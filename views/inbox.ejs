@@ -2,6 +2,9 @@
 
 <div class="container" >
     <h2>Inbox</h2>
+    <% if (typeof message !== 'undefined' && message) { %>
+        <p style="color: green; font-weight: bold;">Signup successful!</p>
+    <% } %>
 
 <table>
     <thead>
@@ -66,3 +69,12 @@
     }
   </style>
 
+
+<script>
+    // Remove the signup=success query parameter after displaying the message
+    if (window.location.search.includes('signup=success')) {
+        const url = new URL(window.location);
+        url.searchParams.delete('signup');
+        window.history.replaceState({}, document.title, url.pathname);
+    }
+</script>

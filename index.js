@@ -70,7 +70,7 @@ app.post('/signin', (req, res) => {
         }
         if (results.length > 0) {
             res.cookie('userId', results[0].id);
-            return res.redirect('/inbox');
+            return res.redirect('/inbox?signup=success'); // with success
         } else {
             res.render('index', { error: 'User not exist' });
         }
@@ -78,39 +78,39 @@ app.post('/signin', (req, res) => {
 });
 
 app.get('/signup', (req, res) => {
-    res.render('signup', { error: null, success: null });
+    res.render('signup', { error: null, message: null });
 });
 
 app.post('/signup', (req, res) => {
     const { full_name, email, password, confirm_password} = req.body;
 
     if (!full_name || !email || !password ) {
-        return res.render('signup', { error: 'All fields are required', success: null });
+        return res.render('signup', { error: 'All fields are required', message: null });
     }
 
     if (password.length < 6) {
-        return res.render('signup', { error: 'Password must be at least 6 characters' , success: null});
+        return res.render('signup', { error: 'Password must be at least 6 characters' , message: null});
     }
 
     if (password !== confirm_password) {
-        return res.render('signup', { error: 'Passwords do not match', success: null });
+        return res.render('signup', { error: 'Passwords do not match', message: null });
     }
 
     const checkEmailQuery = 'SELECT * FROM users WHERE email = ?';
     connection.query(checkEmailQuery, [email], (err, results) => {
         if (err) {
-            return res.render('signup', { error: 'An error occurred. Please try again.', success: null });
+            return res.render('signup', { error: 'An error occurred. Please try again.', message: null });
         }
         if (results.length > 0) {
-            return res.render('signup', { error: 'Email already in use', success: null });
+            return res.render('signup', { error: 'Email already in use', message: null });
         }
 
         const insertUserQuery = 'INSERT INTO users (full_name, email, password) VALUES (?, ?, ?)';
         connection.query(insertUserQuery, [full_name, email, password], (err) => {
             if (err) {
-                return res.render('signup', { error: 'An error occurred. Please try again.', success: null });
+                return res.render('signup', { error: 'An error occurred. Please try again.', message: null });
             }
-            res.render('signup', { error: null, success: 'Signup successful! You can now log in.' });
+            res.render('signup', { error: null, message: 'Signup messageful! You can now log in.' });
         });
     });
 });
@@ -125,6 +125,7 @@ app.get('/inbox', async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = 5;
     const offset = (page - 1) * limit;
+    const signupSuccess = req.query.signup === 'success';
 
     try {
         const emails = await getInboxEmails(userId, offset, limit);
@@ -139,7 +140,7 @@ app.get('/inbox', async (req, res) => {
             const user = userResults[0]; 
 
             
-            res.render('inbox', { emails, page, totalPages, user }); 
+            res.render('inbox', { emails, page, totalPages, user, message: signupSuccess ? signupSuccess : null  }); 
         });
     } catch (error) {
         res.status(500).send('Error loading inbox');
