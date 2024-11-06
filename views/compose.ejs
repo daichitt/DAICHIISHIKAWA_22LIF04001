@@ -1,0 +1,21 @@
+<%- include('layout') %>
+<div class="container" >
+<form action="/send-email" method="POST">
+<h2>Compose Email</h2>
+   <label for="recipient_id">Recipient:</label>
+   <select name="recipient_id">
+       <% users.forEach(user => { %>
+           <option value="<%= user.id %>"><%= user.full_name %></option>
+       <% }) %>
+   </select>
+
+   <label for="subject">Subject:</label>
+   <input type="text" name="subject">
+
+   <label for="body">Body:</label>
+   <textarea name="body"></textarea>
+
+   <button type="submit">Send Email</button>
+
+</form>
+</div>

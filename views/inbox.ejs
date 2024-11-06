@@ -1,0 +1,88 @@
+<%- include('layout') %>
+
+<div class="container" >
+    <h2>Inbox</h2>
+    <% if (typeof message !== 'undefined' && message) { %>
+        <p style="color: green; font-weight: bold;">Signup successful!</p>
+    <% } %>
+
+    <% if (typeof sentmailSuccess !== 'undefined' && sentmailSuccess) { %>
+        <p style="color: green; font-weight: bold;">sentmail successful!</p>
+    <% } %>
+<table>
+    <thead>
+        <tr>
+        <th>Sender</th>
+        <th>Subject</th>
+        <th>Time Received</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% emails.forEach(email => { %>
+        <tr>
+        <td><%= email.sender_name %></td>
+        <td><a href="/emails/<%= email.id %>"><%= email.subject || '(no subject)' %></a></td>
+        <td><%= new Date(email.timestamp).toLocaleString() %></td> 
+        </tr>
+        <% }) %>
+    </tbody>
+</table>
+
+<div class="pagination">
+    <% if (page > 1) { %>
+        <a href="/outbox?page=<%= page - 1 %>">Previous</a>
+    <% } %>
+    <% for (let i = 1; i <= totalPages; i++) { %>
+        <a href="/outbox?page=<%= i %>" class="<%= page === i ? 'active' : '' %>"><%= i %></a>
+    <% } %>
+    <% if (page < totalPages) { %>
+        <a href="/outbox?page=<%= page + 1 %>">Next</a>
+    <% } %>
+  </div>
+
+</div>
+
+<style>
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 10px 0;
+        margin-top: 20px;
+    }
+
+    .pagination a {
+        color: black;
+        float: left;
+        padding: 8px 16px;
+        text-decoration: none;
+        border: 1px solid #ddd;
+        margin: 0 4px;
+        transition: background-color 0.3s, color 0.3s;
+    }
+
+    .pagination a.active {
+        background-color: red;
+        color: white;
+        border: 1px solid red;
+    }
+
+    .pagination a:hover:not(.active) {
+        background-color: #ddd;
+    }
+  </style>
+
+
+<script>
+    // Remove the signup=success query parameter after displaying the message
+    if (window.location.search.includes('signup=success')) {
+        const url = new URL(window.location);
+        url.searchParams.delete('signup');
+        window.history.replaceState({}, document.title, url.pathname);
+    }
+    if (window.location.search.includes('sentEmail=success')) {
+        const url = new URL(window.location);
+        url.searchParams.delete('sentEmail');
+        window.history.replaceState({}, document.title, url.pathname);
+    }
+</script>
