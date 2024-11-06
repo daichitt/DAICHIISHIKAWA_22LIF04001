@@ -6,6 +6,9 @@
         <p style="color: green; font-weight: bold;">Signup successful!</p>
     <% } %>
 
+    <% if (typeof sentmailSuccess !== 'undefined' && sentmailSuccess) { %>
+        <p style="color: green; font-weight: bold;">sentmail successful!</p>
+    <% } %>
 <table>
     <thead>
         <tr>
@@ -75,6 +78,11 @@
     if (window.location.search.includes('signup=success')) {
         const url = new URL(window.location);
         url.searchParams.delete('signup');
+        window.history.replaceState({}, document.title, url.pathname);
+    }
+    if (window.location.search.includes('sentEmail=success')) {
+        const url = new URL(window.location);
+        url.searchParams.delete('sentEmail');
         window.history.replaceState({}, document.title, url.pathname);
     }
 </script>

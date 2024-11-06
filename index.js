@@ -126,6 +126,7 @@ app.get('/inbox', async (req, res) => {
     const limit = 5;
     const offset = (page - 1) * limit;
     const signupSuccess = req.query.signup === 'success';
+    const sentmailSuccess = req.query.sentEmail === 'success';
 
     try {
         const emails = await getInboxEmails(userId, offset, limit);
@@ -140,7 +141,7 @@ app.get('/inbox', async (req, res) => {
             const user = userResults[0]; 
 
             
-            res.render('inbox', { emails, page, totalPages, user, message: signupSuccess ? signupSuccess : null  }); 
+            res.render('inbox', { emails, page, totalPages, user, message: signupSuccess ? signupSuccess : null, sentmailSuccess: sentmailSuccess ? sentmailSuccess : null}); 
         });
     } catch (error) {
         res.status(500).send('Error loading inbox');
@@ -216,7 +217,8 @@ app.post('/send-email', (req, res) => {
     
     connection.query(insertEmailQuery, [userId, recipient_id, subject || null, body || null], (err) => {
         if (err) throw err;
-        res.redirect('/inbox');
+        // res.redirect('/inbox');
+        return res.redirect('/inbox?sentEmail=success'); // with success
     });
 });
 
